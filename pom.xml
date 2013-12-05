@@ -46,7 +46,7 @@
          resources, i.e. build is platform dependent! -->
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-      <infinispan.version>5.2.4.Final-redhat-1</infinispan.version>
+      <infinispan.version>6.0.0.Final</infinispan.version>
    </properties>
 
    <dependencies>
@@ -66,7 +66,7 @@
      <dependency>
        <groupId>org.hibernate</groupId>
        <artifactId>hibernate-search-engine</artifactId>
-       <version>4.2.0.Final-redhat-1</version>
+       <version>4.4.0.Final</version>
      </dependency>
 
      <dependency>
