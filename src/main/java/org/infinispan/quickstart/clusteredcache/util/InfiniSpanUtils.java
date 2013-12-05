@@ -47,7 +47,7 @@ public final class InfiniSpanUtils {
 		long startTime = System.currentTimeMillis();
 		SearchManager searchManager = Search.getSearchManager(cacheWithIndexOn);
 		searchManager.getMassIndexer().start();
-		System.out.print((System.currentTimeMillis() - startTime) + ".");
+		System.out.print((System.currentTimeMillis() - startTime) + "ms. ");
 	}
 
 }

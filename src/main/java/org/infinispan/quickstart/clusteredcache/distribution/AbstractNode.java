@@ -54,7 +54,7 @@ public abstract class AbstractNode {
 				.cacheMode(CacheMode.DIST_SYNC)
 				.indexing().enable()
 				.indexing().addProperty("hibernate.search.default.exclusive_index_use", "false")
-				.indexing().addProperty("hibernate.search.lucene_version", "LUCENE_36")
+				.indexing().addProperty("hibernate.search.lucene_version", "LUCENE_36")				
 				.build();
 	}
 	

@@ -26,15 +26,10 @@ import static org.infinispan.quickstart.clusteredcache.util.InfiniSpanUtils.paus
 import static org.infinispan.quickstart.clusteredcache.util.InfiniSpanUtils.postImportIndexing;
 import static org.infinispan.quickstart.clusteredcache.util.InfiniSpanUtils.searchValueByIndexedField;
 
-import java.util.List;
-
-import org.apache.lucene.search.Query;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.context.Flag;
-import org.infinispan.query.Search;
-import org.infinispan.query.SearchManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.quickstart.clusteredcache.util.LoggingListener;
 
 
@@ -53,24 +48,46 @@ public class Node2 extends AbstractNode {
 
 		waitForClusterToForm();
 
-		AdvancedCache<Object, Object> cacheNoIndex = getCacheManager().getCache(CACHE_NAME).getAdvancedCache()
-				.withFlags(Flag.SKIP_INDEXING);
-		// Add a listener so that we can see the puts to this node
-		cacheNoIndex.addListener(new LoggingListener());
+		importWithIndexingOn(getCacheManager());
+//		importWithoutIndexing(getCacheManager());
+	}
 
+	
+	private static void importWithIndexingOn(EmbeddedCacheManager cacheManager) {
+		AdvancedCache<Object, Object> cacheNoIndex = cacheManager.getCache(CACHE_NAME).getAdvancedCache();
+		// Put a few entries into the cache so that we can see them distribution to the other nodes
+		System.out.print("Loading data in  ");
+		loadData(cacheNoIndex);
+		System.out.println("Done.");
+		searchValueByIndexedField(cacheManager.getCache(CACHE_NAME),INDEXED_FIELD_NAME,INDEXED_VALUE_PREFIX + "0", Value.class);
+		System.out.println("Done.");
+
+		// Index'em afterward
+		System.out.print("Re index with Mass Indexer ... ");
+		postImportIndexing(cacheManager.getCache(CACHE_NAME));
+		System.out.print("Wait for MassIndexer to flush(): ");
+		pause(60);
+		searchValueByIndexedField(cacheManager.getCache(CACHE_NAME),INDEXED_FIELD_NAME,INDEXED_VALUE_PREFIX + "0", Value.class);
+		System.out.println("Test case finished.");
+	}
+
+	private static void importWithoutIndexing(EmbeddedCacheManager cacheManager) {
+		AdvancedCache<Object, Object> cacheNoIndex = cacheManager.getCache(CACHE_NAME).getAdvancedCache().
+				withFlags(Flag.SKIP_INDEXING);
 		// Put a few entries into the cache so that we can see them distribution to the other nodes
 		System.out.print("Loading data in  ");
 		loadData(cacheNoIndex);
 		System.out.println("Done.");
 		// Index'em afterward
 		System.out.print("Post import indexing... ");
-		postImportIndexing(getCacheManager().getCache(CACHE_NAME));
+		postImportIndexing(cacheManager.getCache(CACHE_NAME));
 		System.out.print("Wait for MassIndexer to flush(): ");
 		pause(60);
-		searchValueByIndexedField(getCacheManager().getCache(CACHE_NAME),INDEXED_FIELD_NAME,INDEXED_VALUE_PREFIX + "0", Value.class);
+		searchValueByIndexedField(cacheManager.getCache(CACHE_NAME),INDEXED_FIELD_NAME,INDEXED_VALUE_PREFIX + "0", Value.class);
 		System.out.println("Test case finished.");
 	}
-
+	
+	
 	private static void loadData(Cache<Object,Object> c) {
 		final long NB_ITEMS = 10L;
 
